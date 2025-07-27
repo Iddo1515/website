@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ilai Design Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    html{scroll-behavior:auto}
+    body{font-family:'Montserrat',sans-serif;color:#0f172a;background:#f6f6f6}
+    /* Only main titles use Calistoga (regular) & same size */
+    h1,h2{font-family:'Calistoga',serif;font-weight:400;font-size:clamp(40px,5.5vw,64px)!important;line-height:1.1}
+    .accent{color:#008ed7}
+    section{scroll-margin-top:96px}
+    .counter{display:inline-block}
+
+    /* logo cloud */
+    #logo-cloud{position:relative;width:min(740px,100%);aspect-ratio:740/430;height:auto;margin:auto}
+    #logo-cloud img{position:absolute;border-radius:9999px;border:6px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.12);transition:transform .3s ease,opacity .3s ease}
+    #logo-cloud.hover img{transform:scale(.85);opacity:.5}
+    #logo-cloud.hover img.active{transform:scale(1.25);opacity:1}
+
+    /* show more */
+    .collapsible{overflow:hidden;transition:max-height .6s ease,opacity .6s ease}
+    .collapsible.closed{max-height:0;opacity:0}
+
+    /* testimonials */
+    #test-grid{display:grid;grid-template-areas:'l h r' 'bl c br';gap:2rem;justify-content:center;align-items:center}
+    .test-card{background:#fff;padding:1.5rem;border-radius:.75rem;box-shadow:0 4px 12px rgba(0,0,0,.07);width:320px;max-width:90vw;transition:transform .2s ease, box-shadow .2s ease}
+    .test-card:hover{transform:scale(1.03);box-shadow:0 8px 20px rgba(0,0,0,.12)}
+    /* prevent hover effect on the title card */
+    #tHead:hover{transform:none;box-shadow:none}
+    #tLeft{grid-area:l}#tHead{grid-area:h;text-align:center;background:transparent;box-shadow:none;padding:0;width:auto}#tRight{grid-area:r}#tBL{grid-area:bl}#tCenter{grid-area:c}#tBR{grid-area:br}
+
+    /* lightbox */
+    #lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.8);z-index:60}
+    #lightbox img{max-width:90vw;max-height:80vh;border-radius:.5rem;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+    #lightbox button{position:absolute;top:50%;transform:translateY(-50%);background:none;border:none;color:#fff;font-size:2.5rem;cursor:pointer;padding:.5rem 1rem}
+    #prev{left:5%}#next{right:5%}
+    .ratio-16x9{aspect-ratio:16/9}
+
+    /* hover zoom util */
+    .hover-zoom{transition:transform .25s ease}
+    .hover-zoom:hover{transform:scale(1.04)}
+
+    /* carousel for Selected Work (collapsed state) — same size as SHOW MORE grid */
+    .carousel{display:flex;overflow-x:auto;scroll-snap-type:none;padding-bottom:.5rem;scroll-behavior:auto;cursor:grab}
+    .carousel::-webkit-scrollbar{height:8px}
+    .carousel > a{flex:0 0 50%}
+    @media(min-width:640px){.carousel{gap:1.25rem}.carousel > a{flex-basis:33.3333%}}
+    @media(min-width:768px){.carousel{gap:1.5rem}.carousel > a{flex-basis:25%}}
+    @media(max-width:639px){.carousel{gap:1rem}}
+
+    #contact a{overflow:visible}
+
+    /* responsive tweaks */
+    @media(max-width:767px){
+      #test-grid{display:flex;flex-direction:column;align-items:center;gap:1rem}
+      .test-card{width:100%;max-width:600px}
+      /* Center headings & copy on mobile */
+      #best #best-title, #topics #topics-title{display:block;margin-left:auto;margin-right:auto;text-align:center}
+      #best #best-copy, #topics #topics-copy{margin-left:auto;margin-right:auto;text-align:center;max-width:100%!important;width:100%!important}
+      /* Make sure long words don't overflow */
+      #topics #topics-title{word-break:break-word}
+    }
+  </style>
+</head>
+<body class="leading-relaxed antialiased">
+  <!-- ========= NAV ========= -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-[#f6f6f6]/80 backdrop-blur shadow-sm">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-3 relative">
+      <!-- Brand: fixed logo clickable to home -->
+      <a href="#home" class="flex items-center gap-2 select-none" aria-label="Go to home">
+        <img id="brandLogo" src="assets/brand/logo.png" alt="Brand" class="h-10 w-10 rounded-full object-cover ring-2 ring-white/70"/>
+      </a>
+
+      <!-- Mobile menu button -->
+      <button id="menuBtn" class="md:hidden p-2 rounded-lg hover:bg-slate-200/60" aria-label="Open menu"><i data-lucide="menu" class="w-6 h-6"></i></button>
+
+      <!-- Centered nav -->
+      <nav class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+        <a href="#work" class="transition-colors hover:text-[#008ed7]">Work</a>
+        <a href="#best" class="transition-colors hover:text-[#008ed7]">Insights</a>
+        <a href="#process" class="transition-colors hover:text-[#008ed7]">Process</a>
+        <a href="#testimonials" class="transition-colors hover:text-[#008ed7]">Testimonials</a>
+        <a href="#packages" class="transition-colors hover:text-[#008ed7]">Packages</a>
+      </nav>
+
+      <!-- Contact button on the right -->
+      <a href="#contact" class="ml-auto inline-flex items-center px-4 py-2 rounded-lg bg-[#008ed7] text-white hover:bg-[#20a4ea] transition-colors">Contact</a>
+    </div>
+  </header>
+
+  <!-- Mobile Nav (dropdown) -->
+  <nav id="mobileNav" class="md:hidden fixed left-0 right-0 top-16 bg-[#f6f6f6] border-t border-slate-200 shadow-sm hidden z-40">
+    <div class="px-6 py-4 flex flex-col gap-4">
+      <a href="#work" class="hover:text-[#008ed7]">Work</a>
+      <a href="#best" class="hover:text-[#008ed7]">Insights</a>
+      <a href="#process" class="hover:text-[#008ed7]">Process</a>
+      <a href="#testimonials" class="hover:text-[#008ed7]">Testimonials</a>
+      <a href="#packages" class="hover:text-[#008ed7]">Packages</a>
+      <a href="#contact" class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#008ed7] text-white hover:bg-[#20a4ea]">Contact</a>
+    </div>
+  </nav>
+
+  <!-- ========= HERO ========= -->
+  <section id="home" class="pt-32 pb-24">
+    <div class="max-w-5xl mx-auto text-center px-6">
+      <p class="text-lg font-medium mb-2 text-[#006ea7]">Hey, I'm <span class="font-bold">Ilai Design</span></p>
+      <h1 class="leading-tight mb-4 text-[#001525]">
+        Turning Your<br>Impressions into <span class="accent">Clicks</span>
+      </h1>
+      <p class="text-lg md:text-xl mb-12 text-[#686868]">Thumbnail designer with 5+ years of experience in influencing audiences</p>
+      <!-- Stats -->
+      <div class="flex flex-wrap justify-center gap-12 mb-10">
+        <div class="flex items-start gap-3">
+          <i data-lucide="percent" class="w-10 h-10 text-[#008ed7]"></i>
+          <div class="text-left">
+            <div class="text-xs font-medium uppercase tracking-wide text-[#686868]">Max CTR</div>
+            <div class="text-3xl font-semibold"><span class="counter" data-target="34.5" data-suffix="%" data-decimals="1">0</span></div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <i data-lucide="mouse-pointer-click" class="w-10 h-10 text-[#008ed7]"></i>
+          <div class="text-left">
+            <div class="text-xs font-medium uppercase tracking-wide text-[#686868]">Clicks</div>
+            <div class="text-3xl font-semibold"><span class="counter" data-target="50" data-suffix="M+" data-decimals="0">0</span></div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <i data-lucide="smile" class="w-10 h-10 text-[#008ed7]"></i>
+          <div class="text-left">
+            <div class="text-xs font-medium uppercase tracking-wide text-[#686868]">Clients</div>
+            <div class="text-3xl font-semibold"><span class="counter" data-target="55" data-suffix="+" data-decimals="0">0</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Logo Cloud (centered wrapper) -->
+      <div class="flex justify-center"><div id="logo-cloud"></div></div>
+    </div>
+  </section>
+
+  <!-- ========= WORK ========= -->
+  <section id="work" class="py-20 bg-[#f6f6f6]">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 class="text-center mb-12 text-[#001525]"><span class="text-[#001525]">Selected </span><span class="accent">Work</span></h2>
+      <!-- One container used for BOTH states: carousel (collapsed) and grid (expanded) -->
+      <div id="work-grid" class="carousel"></div>
+      <div class="text-center mt-10"><button id="toggle-work" class="px-6 py-3 bg-[#008ed7] hover:bg-[#20a4ea] text-white rounded-lg transition-colors">Show more</button></div>
+    </div>
+  </section>
+
+  <!-- lightbox overlay -->
+  <div id="lightbox" class="flex"><button id="prev">&lsaquo;</button><img src="" alt="preview"><button id="next">&rsaquo;</button></div>
+
+  <!-- ========= INSIGHTS • Best ========= -->
+  <section id="best" class="py-20">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-[420px_auto] gap-12 items-center md:w-fit md:mx-auto justify-center">
+      <div class="space-y-4 text-center order-2 md:order-1">
+        <p class="text-[#006ea7] font-semibold leading-tight">What a A/B<br>Test Looks Like</p>
+        <img id="ab-winner" class="rounded-lg shadow mx-auto ratio-16x9 object-cover w-full max-w-[420px] hover-zoom" alt="Winner">
+        <div class="flex gap-4 justify-center">
+          <img id="ab-a" class="rounded-lg shadow ratio-16x9 object-cover w-40 md:w-[180px] hover-zoom" alt="A">
+          <img id="ab-b" class="rounded-lg shadow ratio-16x9 object-cover w-40 md:w-[180px] hover-zoom" alt="B">
+        </div>
+      </div>
+      <div class="order-1 md:order-2">
+        <h2 id="best-title" class="mb-6 text-[#001525] inline-block">Bringing<br>Out the <span class="accent">Best</span></h2>
+        <div id="best-copy">
+          <p class="mb-4 text-[#686868]">Testing multiple thumbnails helps find the one with the highest CTR and watch time, significantly boosting views.</p>
+          <p class="mb-4 text-[#686868]">Viewers are split into groups, with each group shown a different thumbnail on YouTube.</p>
+          <p class="mb-4 text-[#686868]">After comparing results, the best-performing version is chosen.</p>
+          <p class="mb-4 text-[#686868]">If needed, additional versions are tested for further improvement.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========= INSIGHTS • Topics ========= -->
+  <section id="topics" class="py-20 bg-[#f6f6f6]">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-[420px_auto] gap-12 items-center md:w-fit md:mx-auto justify-center">
+      <div class="space-y-4 order-2 md:order-1 text-center">
+        <p class="text-[#006ea7] font-semibold leading-tight">How an Outlier<br>Maximizes Performance</p>
+        <img id="outlier-top" class="rounded-lg shadow mx-auto ratio-16x9 object-cover w-full max-w-[420px] hover-zoom" alt="Outlier">
+        <img id="outlier-my" class="rounded-lg shadow mx-auto md:mx-0 ratio-16x9 object-cover w-full max-w-[420px] hover-zoom" alt="My Version">
+      </div>
+      <div class="order-1 md:order-2">
+        <h2 id="topics-title" class="mb-6 text-[#001525] inline-block">Converting<br>Topics into<br><span class="accent">Success</span></h2>
+        <div id="topics-copy">
+          <p class="mb-4 text-[#686868]">Outliers are topics with high demand but few quality videos competing for attention.</p>
+          <p class="mb-4 text-[#686868]">Outliers are found using tools that highlight videos that perform far above average within a niche.</p>
+          <p class="text-[#686868]">Creating thumbnails around high-performing topics like these leads to higher reach, stronger CTR, and faster channel growth.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========= PROCESS ========= -->
+  <section id="process" class="py-20">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+      <p class="text-[#006ea7] font-semibold mb-2">How It Works</p>
+      <h2 class="mb-12"><span class="text-[#001525]">Creating a</span><br><span class="text-[#008ed7]">Winning Thumbnail</span></h2>
+      <div class="grid gap-10 md:grid-cols-4">
+        <!-- Brief -->
+        <div>
+          <div class="flex items-center justify-center gap-3 mb-2">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#008ed7] text-white">
+              <i data-lucide="messages-square" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-xl font-semibold">Brief</h3>
+          </div>
+          <p class="text-sm mb-3 text-center">Send your project details and examples. The more info you give, the better the result.</p>
+          <img id="proc-brief" class="w-full rounded-lg ratio-16x9 object-cover bg-gray-100 hover-zoom" alt="Brief image">
+        </div>
+        <!-- Concept -->
+        <div>
+          <div class="flex items-center justify-center gap-3 mb-2">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#008ed7] text-white">
+              <i data-lucide="lightbulb" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-xl font-semibold">Concept</h3>
+          </div>
+          <p class="text-sm mb-3 text-center">I send sketches and examples as a concept to match your vision and simplify the shoot.</p>
+          <img id="proc-concept" class="w-full rounded-lg ratio-16x9 object-cover bg-gray-100 hover-zoom" alt="Concept image">
+        </div>
+        <!-- Design -->
+        <div>
+          <div class="flex items-center justify-center gap-3 mb-2">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#008ed7] text-white">
+              <i data-lucide="pen-tool" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-xl font-semibold">Design</h3>
+          </div>
+          <p class="text-sm mb-3 text-center">I design and update you on the progress, making changes based on your feedback.</p>
+          <img id="proc-design" class="w-full rounded-lg ratio-16x9 object-cover bg-gray-100 hover-zoom" alt="Design image">
+        </div>
+        <!-- Delivery -->
+        <div>
+          <div class="flex items-center justify-center gap-3 mb-2">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#008ed7] text-white">
+              <i data-lucide="handshake" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-xl font-semibold">Delivery</h3>
+          </div>
+          <p class="text-sm mb-3 text-center">I send the final design after approval, and you make the payment to finish the project.</p>
+          <img id="proc-delivery" class="w-full rounded-lg ratio-16x9 object-cover bg-gray-100 hover-zoom" alt="Delivery image">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========= TESTIMONIALS ========= -->
+  <section id="testimonials" class="py-32 bg-[#f6f6f6]">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-1">
+        <p class="text-[#006ea7] font-semibold">Why Choose Me</p>
+      </div>
+      <div id="test-grid" class="mt-0">
+        <div id="tHead" class="test-card"></div>
+        <div id="tLeft" class="test-card"></div>
+        <div id="tRight" class="test-card"></div>
+        <div id="tBL" class="test-card"></div>
+        <div id="tCenter" class="test-card"></div>
+        <div id="tBR" class="test-card"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========= PACKAGES ========= -->
+  <section id="packages" class="py-20">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <h2 class="mb-4 leading-tight"><span class="text-[#001525]">My Design</span><br><span class="accent">Packages</span></h2>
+      <p class="max-w-3xl mx-auto mb-12 text-[#686868]">Want to level up your thumbnail design skills? Check out my design packages, built to help you learn, improve, and create thumbnails that get results.</p>
+      <div class="grid gap-10 md:grid-cols-2 items-start">
+        <div>
+          <h3 class="text-xl font-semibold text-[#006ea7] mb-3">Face Fix Retouching Pack</h3>
+          <a href="https://payhip.com/FaceFix" target="_blank" rel="noopener noreferrer" class="block relative rounded-lg overflow-hidden shadow-lg mx-auto w-full max-w-[420px]" style="aspect-ratio:16/9">
+            <img id="pack-facefix" alt="Face Fix Retouching Pack cover" class="absolute inset-0 w-full h-full object-cover hover-zoom"/>
+          </a>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-[#006ea7] mb-3">Winner Thumbnails Pack</h3>
+          <a href="https://payhip.com/winnerpack" target="_blank" rel="noopener noreferrer" class="block relative rounded-lg overflow-hidden shadow-lg mx-auto w-full max-w-[420px]" style="aspect-ratio:16/9">
+            <img id="pack-winner" alt="Winner Thumbnails Pack cover" class="absolute inset-0 w-full h-full object-cover hover-zoom"/>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========= CONTACT ========= -->
+  <section id="contact" class="py-24">
+    <div class="max-w-3xl mx-auto px-6 text-center">
+      <h2 class="mb-4 text-[#001525]">Get in <span class="accent">Touch</span></h2>
+      <p class="mb-10">Feel free to reach out today if you would like to work together or have any questions.</p>
+      <div class="flex justify-center gap-10">
+        <a href="https://www.instagram.com/?next=%2F" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center w-10 h-10 text-[#006ea7] hover:text-[#008ed7] transition-transform hover:scale-110" aria-label="Instagram"><i data-lucide="instagram" class="w-7 h-7"></i></a>
+        <a href="https://x.com/ilai_design" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center w-10 h-10 text-[#006ea7] hover:text-[#008ed7] transition-transform hover:scale-110" aria-label="X"><i data-lucide="twitter" class="w-7 h-7"></i></a>
+        <a href="https://discord.com/users/660020287181684738" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center w-10 h-10 text-[#006ea7] hover:text-[#008ed7] transition-transform hover:scale-110" aria-label="Discord">
+          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.317 4.369a19.8 19.8 0 0 0-4.885-1.515c-.22.39-.46.87-.62 1.26a17.6 17.6 0 0 0-5.624 0c-.16-.39-.4-.87-.62-1.26A19.8 19.8 0 0 0 3.68 4.37C1.89 7.95 1.6 11.36 1.86 14.74c2.06 1.5 4.06 2.42 6.01 3.03.48-.67.9-1.36 1.25-2.07a12.7 12.7 0  0 1-1.95-.94M22.14 14.74c-2.05 1.5-4.04 2.42-6 3.03-.36-.7-.78-1.39-1.24-2.07.67-.21 1.33-.47 1.97-.77"/>
+            <circle cx="9" cy="10" r="1"/>
+            <circle cx="15" cy="10" r="1"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-6 text-center text-sm bg-[#f6f6f6]">© <span id="year"></span> Ilai Design. All rights reserved.</footer>
+
+  <!-- ========= SCRIPTS ========= -->
+  <script>
+    'use strict';
+    // === ASSETS CONFIG ===
+    const ASSETS_BASE = 'assets';
+    const THUMBS = Array.from({length:32}, (_,i)=>`${ASSETS_BASE}/thumbs/t${String(i+1).padStart(2,'0')}.png`);
+    const LOGOS  = Array.from({length:53}, (_,i)=>`${ASSETS_BASE}/logos/logo${String(i+1).padStart(2,'0')}.png`);
+    const INSIGHTS = {
+      ab:{winner:`${ASSETS_BASE}/insights/ab_winner.png`,a:`${ASSETS_BASE}/insights/ab_a.png`,b:`${ASSETS_BASE}/insights/ab_b.png`},
+      outlier:{top:`${ASSETS_BASE}/insights/outlier_top.png`,myversion:`${ASSETS_BASE}/insights/outlier_myversion.png`}
+    };
+    const PROCESS_IMG = [
+      `${ASSETS_BASE}/process/brief.png`,
+      `${ASSETS_BASE}/process/concept.png`,
+      `${ASSETS_BASE}/process/design.png`,
+      `${ASSETS_BASE}/process/delivery.png`
+    ];
+    // Packages covers — place files in assets/packages
+    const PACKS = {
+      facefix: `${ASSETS_BASE}/packages/facefix_cover.png`,
+      winner: `${ASSETS_BASE}/packages/winner_cover.png`
+    };
+
+    // Icon library init (Lucide)
+    document.addEventListener('DOMContentLoaded', function(){
+      if (typeof lucide !== 'undefined' && lucide && typeof lucide.createIcons === 'function') {
+        try { lucide.createIcons(); } catch(e) { console.warn('Lucide init failed', e); }
+      }
+    });
+
+    // Limit copy width to title width in Best & Topics (only on ≥ md)
+    function bindCopyWidth(titleId, copyId){
+      var t=document.getElementById(titleId), c=document.getElementById(copyId);
+      if(!t||!c) return;
+      function set(){
+        var isMd = window.matchMedia('(min-width: 768px)').matches;
+        if(isMd){
+          var w=t.getBoundingClientRect().width;
+          c.style.maxWidth=w+'px';
+          c.style.width=w+'px';
+        }else{
+          c.style.maxWidth='';
+          c.style.width='';
+        }
+      }
+      if (document.fonts && document.fonts.ready) { document.fonts.ready.then(set); }
+      window.addEventListener('load', set);
+      window.addEventListener('resize', set);
+      set();
+    }
+    bindCopyWidth('best-title','best-copy');
+    bindCopyWidth('topics-title','topics-copy');
+
+    // Year
+    (function(){ var yEl=document.getElementById('year'); if(yEl) yEl.textContent=new Date().getFullYear(); })();
+
+    // Counter animation on view
+    function animateCounter(el){
+      var t = parseFloat(el.dataset.target);
+      var suf = el.dataset.suffix || '';
+      var decimalsAttr = el.dataset.decimals;
+      var decimals = Number.isFinite(parseInt(decimalsAttr,10)) ? parseInt(decimalsAttr,10) : (String(el.dataset.target || '').indexOf('.')>-1 ? 1 : 0);
+      if (Number.isNaN(t)) t = 0;
+      var start = performance.now(), dur = 1500;
+      function step(now){
+        var p = Math.min((now-start)/dur, 1);
+        var val = p * t;
+        el.textContent = (decimals > 0 ? val.toFixed(decimals) : Math.floor(val)) + suf;
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.counter'), function(c){
+      new IntersectionObserver(function(es, obs){
+        es.forEach(function(e){ if (e.isIntersecting) { animateCounter(e.target); obs.unobserve(e.target); } });
+      }, { threshold: 0.6 }).observe(c);
+    });
+
+    // Bind assets to DOM once (insights + process + packages)
+    (function(){
+      var iw = document.getElementById('ab-winner'); if(iw){ iw.src = INSIGHTS.ab.winner; iw.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/420x240?text=Winner'; }; }
+      var ia = document.getElementById('ab-a'); if(ia){ ia.src = INSIGHTS.ab.a; ia.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/180x100?text=A'; }; }
+      var ib = document.getElementById('ab-b'); if(ib){ ib.src = INSIGHTS.ab.b; ib.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/180x100?text=B'; }; }
+      var ot = document.getElementById('outlier-top'); if(ot){ ot.src = INSIGHTS.outlier.top; ot.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/420x240?text=Outlier'; }; }
+      var om = document.getElementById('outlier-my'); if(om){ om.src = INSIGHTS.outlier.myversion; om.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/420x240?text=My%20Version'; }; }
+      var p0=document.getElementById('proc-brief');     if(p0){ p0.src=PROCESS_IMG[0]; p0.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/640x360?text=Brief';}; }
+      var p1=document.getElementById('proc-concept');   if(p1){ p1.src=PROCESS_IMG[1]; p1.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/640x360?text=Concept';}; }
+      var p2=document.getElementById('proc-design');    if(p2){ p2.src=PROCESS_IMG[2]; p2.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/640x360?text=Design';}; }
+      var p3=document.getElementById('proc-delivery');  if(p3){ p3.src=PROCESS_IMG[3]; p3.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/640x360?text=Delivery';}; }
+      var pf=document.getElementById('pack-facefix');   if(pf){ pf.src=PACKS.facefix; pf.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/420x240?text=Face%20Fix';}; }
+      var pw=document.getElementById('pack-winner');    if(pw){ pw.src=PACKS.winner; pw.onerror=function(){ this.onerror=null; this.src='https://via.placeholder.com/420x240?text=Winner%20Pack';}; }
+    })();
+
+    // Logo cloud with manual coordinates + editor; fallback generator
+    (function(){
+      var cloud=document.getElementById('logo-cloud');
+      var W=cloud.clientWidth, H=cloud.clientHeight; var cx=W/2, cy=H/2;
+
+      function generateDefault(){
+        var layout=[];
+        var rings=[
+          {count:9,  scale:0.18, size:92},
+          {count:12, scale:0.41, size:82},
+          {count:14, scale:0.63, size:72},
+          {count:10, scale:0.82, size:64},
+          {count:8,  scale:1.02, size:56}
+        ];
+        rings.forEach(function(r,ri){
+          for(var i=0;i<r.count;i++){
+            if(layout.length>=53) break;
+            var theta=(2*Math.PI*i)/r.count + (ri%2?Math.PI/r.count:0);
+            var pad=18; var rx=(W/2 - r.size/2 - pad)*r.scale;
+            var ry=(H/2 - r.size/2 - pad)*r.scale*0.72;
+            var x = (cx + rx*Math.cos(theta)) / W;
+            var y = (cy + ry*Math.sin(theta)) / H;
+            var s = Math.round(r.size*(0.9 + 0.2*Math.sin((i/r.count)*Math.PI*2)));
+            layout.push({x:x,y:y,size:s});
+          }
+        });
+        while(layout.length<53){ layout.push({x:0.5,y:0.5,size:60}); }
+        return layout.slice(0,53);
+      }
+
+      var logoLayoutData = [
+        {x:.24,y:.08,size:40},{x:.36,y:.08,size:48},{x:.50,y:.08,size:72},{x:.64,y:.08,size:48},{x:.76,y:.08,size:40},
+        {x:.14,y:.18,size:44},{x:.22,y:.18,size:50},{x:.30,y:.18,size:58},{x:.38,y:.18,size:64},{x:.46,y:.18,size:68},{x:.54,y:.18,size:64},{x:.62,y:.18,size:58},{x:.70,y:.18,size:50},{x:.78,y:.18,size:44},
+        {x:.12,y:.30,size:56},{x:.20,y:.30,size:62},{x:.28,y:.30,size:54},{x:.36,y:.30,size:60},{x:.44,y:.30,size:70},{x:.52,y:.30,size:60},{x:.60,y:.30,size:54},{x:.68,y:.30,size:62},{x:.76,y:.30,size:56},{x:.84,y:.30,size:50},
+        {x:.14,y:.42,size:60},{x:.22,y:.42,size:70},{x:.30,y:.42,size:88},{x:.38,y:.42,size:76},{x:.46,y:.42,size:90},{x:.54,y:.42,size:76},{x:.62,y:.42,size:88},{x:.70,y:.42,size:70},{x:.78,y:.42,size:60},
+        {x:.12,y:.54,size:56},{x:.20,y:.54,size:62},{x:.28,y:.54,size:54},{x:.36,y:.54,size:66},{x:.44,y:.54,size:72},{x:.52,y:.54,size:66},{x:.60,y:.54,size:54},{x:.68,y:.54,size:62},{x:.76,y:.54,size:56},{x:.84,y:.54,size:50},
+        {x:.18,y:.66,size:48},{x:.28,y:.66,size:56},{x:.38,y:.66,size:64},{x:.48,y:.66,size:70},{x:.58,y:.66,size:64},{x:.68,y:.66,size:56},{x:.78,y:.66,size:48},
+        {x:.34,y:.78,size:56},{x:.50,y:.78,size:60},{x:.66,y:.78,size:56}
+      ];
+
+      var layout = (logoLayoutData && logoLayoutData.length===53) ? logoLayoutData : generateDefault();
+
+      function render(){
+        cloud.innerHTML='';
+        layout.forEach(function(p,idx){
+          var s=p.size; var img=new Image(s,s);
+          var srcL = (LOGOS[idx] || `https://via.placeholder.com/${Math.max(40,Math.min(160,s))}?text=L${idx+1}`); img.src = srcL; img.onerror=function(){ this.onerror=null; this.src=`https://via.placeholder.com/${Math.max(40,Math.min(160,s))}?text=L${idx+1}`; };
+          img.dataset.index=idx;
+          img.style.left=(p.x*W - s/2)+'px';
+          img.style.top=(p.y*H - s/2)+'px';
+          cloud.appendChild(img);
+        });
+      }
+      render();
+
+      cloud.addEventListener('mouseover',function(e){ if(e.target && e.target.tagName==='IMG'){ cloud.classList.add('hover'); e.target.classList.add('active'); } });
+      cloud.addEventListener('mouseout',function(e){ if(e.target && e.target.tagName==='IMG'){ cloud.classList.remove('hover'); e.target.classList.remove('active'); } });
+
+      // Editor (?edit=logos)
+      var editMode = new URLSearchParams(location.search).get('edit')==='logos';
+      if(editMode){
+        var dragIdx=null, offX=0, offY=0, activeEl=null;
+        cloud.style.outline='1px dashed rgba(0,0,0,.1)';
+        cloud.addEventListener('mousedown', function(e){
+          if(e.target && e.target.tagName==='IMG'){
+            dragIdx=parseInt(e.target.dataset.index,10);
+            activeEl=e.target;
+            offX = e.clientX - (layout[dragIdx].x*W);
+            offY = e.clientY - (layout[dragIdx].y*H);
+            e.preventDefault();
+          }
+        });
+        window.addEventListener('mousemove', function(e){
+          if(dragIdx!==null && activeEl){
+            var rect = cloud.getBoundingClientRect();
+            var nx=(e.clientX - rect.left - offX) / W;
+            var ny=(e.clientY - rect.top  - offY) / H;
+            nx=Math.max(0.05,Math.min(0.95,nx)); ny=Math.max(0.05,Math.min(0.95,ny));
+            layout[dragIdx].x=nx; layout[dragIdx].y=ny;
+            var s=layout[dragIdx].size;
+            activeEl.style.left=(nx*W - s/2)+'px';
+            activeEl.style.top =(ny*H - s/2)+'px';
+          }
+        });
+        window.addEventListener('mouseup', function(){ if(dragIdx!==null){ dragIdx=null; activeEl=null; render(); } });
+
+        var controls=document.createElement('div');
+        controls.className='absolute -mt-10 right-6 flex items-center gap-2';
+        cloud.parentElement.style.position='relative';
+        cloud.parentElement.appendChild(controls);
+
+        var exportBtn=document.createElement('button');
+        exportBtn.textContent='Export layout';
+        exportBtn.className='px-3 py-1 text-xs bg-slate-800 text-white rounded';
+        controls.appendChild(exportBtn);
+        exportBtn.addEventListener('click', function(){
+          console.log('logoLayoutData = ', JSON.stringify(layout));
+          alert('Layout JSON printed to console');
+        });
+
+        var guideLabel=document.createElement('label');
+        guideLabel.className='px-3 py-1 text-xs bg-gray-200 rounded cursor-pointer';
+        guideLabel.textContent='Load guide image';
+        var guideInput=document.createElement('input'); guideInput.type='file'; guideInput.accept='image/*'; guideInput.className='hidden';
+        guideLabel.appendChild(guideInput); controls.appendChild(guideLabel);
+        guideInput.addEventListener('change', function(){
+          if(this.files && this.files[0]){
+            var url=URL.createObjectURL(this.files[0]);
+            cloud.style.backgroundImage = 'url("'+url+'")';
+            cloud.style.backgroundSize = 'contain';
+            cloud.style.backgroundRepeat='no-repeat';
+            cloud.style.backgroundPosition='center';
+            cloud.style.opacity='1';
+          }
+        });
+      }
+
+      window.addEventListener('resize', function(){
+        W=cloud.clientWidth; H=cloud.clientHeight; cx=W/2; cy=H/2; render();
+      });
+    })();
+
+    // Thumbnails (32) – Single source of truth container; carousel when collapsed, grid when expanded
+    (function(){
+      var grid=document.getElementById('work-grid');
+      var total=32; var imgs=[];
+
+      // build all items into the SAME container
+      for(var i=1;i<=total;i++){
+        var a=document.createElement('a'); a.href="#"; a.className='block rounded-lg overflow-hidden shadow-lg group';
+        a.dataset.idx = String(i-1);
+        var im=new Image();
+        var srcT = THUMBS[i-1] || `https://via.placeholder.com/600x338?text=T${i}`; im.src = srcT;
+        im.onerror=function(){ this.onerror=null; this.src=`https://via.placeholder.com/600x338?text=T${i}`; };
+        im.alt='Thumbnail '+i;
+        // unified sizing: fixed 16:9 ratio everywhere
+        im.className='w-full ratio-16x9 object-cover transition-transform group-hover:scale-105';
+        imgs.push(im);
+        a.appendChild(im);
+        a.addEventListener('click', function(e){ e.preventDefault(); open(+this.dataset.idx); });
+        grid.appendChild(a);
+      }
+
+      var btn=document.getElementById('toggle-work');
+      var expanded=false; // start collapsed (carousel)
+
+      // ===== Auto-scroll implementation (seamless loop) =====
+      var rafId=null, baseWidth=0, curSpeed=0, targetSpeed=1.0;
+
+      function ensureClones(){
+        if(grid.querySelector('[data-clone]')) return; // already cloned once
+        var originals = Array.from(grid.children);
+        originals.forEach(function(node){
+          var c = node.cloneNode(true);
+          c.setAttribute('data-clone','1');
+          // keep the same data-idx so lightbox opens the right original index
+          c.addEventListener('click', function(e){ e.preventDefault(); open(+node.dataset.idx || 0); });
+          grid.appendChild(c);
+        });
+      }
+
+      function measure(){
+        // half the scrollWidth because we duplicated once
+        baseWidth = Math.max(1, Math.floor(grid.scrollWidth/2));
+      }
+
+      function stopAuto(){ if(rafId){ cancelAnimationFrame(rafId); rafId=null; } }
+      function startAuto(){
+        stopAuto(); curSpeed=0; if(baseWidth<=1) return;
+        var step=function(){
+          curSpeed += (targetSpeed - curSpeed)*0.08;
+          grid.scrollLeft += curSpeed;
+          if(grid.scrollLeft >= baseWidth){ grid.scrollLeft -= baseWidth; }
+          rafId=requestAnimationFrame(step);
+        };
+        rafId=requestAnimationFrame(step);
+      }
+
+      function afterLayout(cb){ requestAnimationFrame(function(){ requestAnimationFrame(cb); }); }
+
+      function setState(){
+        if(expanded){
+          // Expanded grid (no auto-scroll)
+          stopAuto();
+          grid.classList.remove('carousel');
+          grid.classList.add('grid','grid-cols-2','sm:grid-cols-3','md:grid-cols-4','gap-4','sm:gap-5','md:gap-6');
+          btn.textContent='Show less';
+        }else{
+          // Collapsed carousel + auto-scroll
+          grid.classList.add('carousel');
+          grid.classList.remove('grid','grid-cols-2','sm:grid-cols-3','md:grid-cols-4','gap-4','sm:gap-5','md:gap-6');
+          btn.textContent='Show more';
+          grid.scrollLeft = 0;
+          ensureClones();
+          afterLayout(function(){ measure(); startAuto(); });
+        }
+      }
+
+      setState();
+      btn.addEventListener('click', function(){ expanded=!expanded; setState(); });
+
+      // pause on hover / resume on leave for better UX
+      grid.addEventListener('mouseenter', function(){ targetSpeed = 0; });
+      grid.addEventListener('mouseleave', function(){ targetSpeed = 1.0; });
+      window.addEventListener('blur', stopAuto);
+      window.addEventListener('focus', function(){ if(!expanded){ measure(); startAuto(); } });
+      window.addEventListener('resize', function(){ if(!expanded){ afterLayout(function(){ measure(); }); } });
+
+      // ===== Lightbox =====
+      var lb=document.getElementById('lightbox'); var lbImg=lb.querySelector('img'); var current=0;
+      function open(i){ current=i; lbImg.src=imgs[i].src; lb.style.display='flex'; }
+      function nav(d){ current=(current+d+imgs.length)%imgs.length; lbImg.src=imgs[current].src; }
+      document.getElementById('prev').addEventListener('click',function(){ nav(-1); });
+      document.getElementById('next').addEventListener('click',function(){ nav(1); });
+      lb.addEventListener('click',function(e){ if(e.target===lb) lb.style.display='none'; });
+    })();
+
+    // Testimonials content & centered title (supports optional avatars in assets/testimonials)
+    (function(){
+      const TESTI_AVATAR = (name)=>{
+        const map={
+          'Saltiz':'saltiz.png',
+          'Cycnic':'cycnic.png',
+          'Hamutzi':'hamutzi.png',
+          'Danieloss':'danieloss.png',
+          'Noam Firuz':'noam_firuz.png'
+        };
+        const file = map[name];
+        return file ? `${ASSETS_BASE}/testimonials/${file}` : null;
+      };
+
+      var data=[
+        {area:'tLeft',name:'Saltiz',subs:'360K',text:'Ilai is a fantastic designer, attentive and professional. His thumbnails are eye catching, colorful, and reflect a deep understanding of YouTube.'},
+        {area:'tRight',name:'Cycnic',subs:'450K',text:'Ilai is an amazing designer. Everything he touches turns to gold. He listens, works seriously, meets deadlines, and delivers great results.'},
+        {area:'tBL',name:'Hamutzi',subs:'175K',text:'Ilai helped me with my daily video challenge to reach 100K followers from zero. His availability, knowledge, and professionalism in thumbnails made it a success.'},
+        {area:'tCenter',name:'Danieloss',subs:'50K',text:'Ilai is a talented designer! He delivers quickly and is highly knowledgeable about thumbnail designing, CTR enhancement, and capturing photos for thumbnails.'},
+        {area:'tBR',name:'Noam Firuz',subs:'330K',text:'Ilai is a great designer. He is serious, responsible, and meeting deadlines. He shares his opinions on what works, listens to feedback, and makes changes if needed.'}
+      ];
+      data.forEach(function(d){
+        var el=document.getElementById(d.area);
+        var src = TESTI_AVATAR(d.name) || 'https://via.placeholder.com/48';
+        el.innerHTML='<div class="flex items-center gap-3 mb-2"><img src="'+src+'" class="w-12 h-12 rounded-full object-cover bg-white" alt="'+d.name+' logo"/><div><p class="font-semibold">'+d.name+'</p><p class="text-xs text-gray-500">'+d.subs+' subscribers</p></div></div><p class="text-sm">“'+d.text+'”</p>';
+      });
+      document.getElementById('tHead').innerHTML = '<h2 class="leading-tight text-center"><span class="text-[#001525]">What My</span><br><span class="accent">Clients Say</span></h2>';
+    })();
+
+    // try live stats update from backend (optional) – only Clicks
+    async function updateLiveStats(){
+      try{
+        const res = await fetch('/api/stats', {cache:'no-store'});
+        if(!res.ok) return;
+        const data = await res.json();
+        if(typeof data.views === 'number'){
+          const m = Math.floor(data.views/1_000_000);
+          const el = document.querySelector('.counter[data-suffix="M+"]');
+          if(el){ el.dataset.target = m; el.textContent='0M+'; animateCounter(el); }
+        }
+      }catch(e){ console.log('Live stats not available yet:', e); }
+    }
+    document.addEventListener('DOMContentLoaded', updateLiveStats);
+
+    // Basic self-tests
+    (function(){
+      try{
+        console.assert(document.getElementById('year'), '#year missing');
+        console.assert(document.getElementById('logo-cloud'), 'logo cloud missing');
+        console.assert(document.getElementById('work-grid'), 'work grid missing');
+        console.assert(typeof animateCounter==='function','animateCounter missing');
+      }catch(e){ console.warn('Self-tests failed:', e); }
+    })();
+
+    // Mobile nav toggle
+    document.addEventListener('DOMContentLoaded', function(){
+      var menuBtn=document.getElementById('menuBtn');
+      var mobileNav=document.getElementById('mobileNav');
+      if(menuBtn && mobileNav){
+        menuBtn.addEventListener('click', function(){ mobileNav.classList.toggle('hidden'); });
+        mobileNav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ mobileNav.classList.add('hidden'); }); });
+        window.addEventListener('resize', function(){ if(window.innerWidth>=768){ mobileNav.classList.add('hidden'); } });
+      }
+    });
+  </script>
+</body>
+</html>
